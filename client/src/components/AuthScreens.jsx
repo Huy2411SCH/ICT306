@@ -23,6 +23,9 @@ export function AuthScreen({ onDone }) {
   const [info, setInfo] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // An error from the last submit no longer applies once the user edits their details.
+  useEffect(() => setError(''), [username, password]);
+
   const submit = async (e) => {
     e.preventDefault();
     setError('');

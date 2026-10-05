@@ -6,19 +6,33 @@ const LABELS = ['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
 /** Live strength + breach check. With `allowAi`, offers AI-generated advice (features only are sent to the AI). */
 export default function StrengthMeter({ password, username, allowAi = false }) {
   const [result, setResult] = useState(null);
+  const [checkError, setCheckError] = useState('');
   const [ai, setAi] = useState(null);
   const [aiBusy, setAiBusy] = useState(false);
 
   useEffect(() => {
     setAi(null);
+    setCheckError('');
     if (!password) {
       setResult(null);
       return undefined;
     }
+    // A response for an older password can arrive after a newer one (the breach lookup varies in
+    // speed); `current` makes sure only the response for what is in the box right now is shown.
+    let current = true;
     const timer = setTimeout(() => {
-      api('/tools/analyze', { method: 'POST', body: { password, username } }).then(setResult).catch(() => {});
+      api('/tools/analyze', { method: 'POST', body: { password, username } })
+        .then((data) => current && setResult(data))
+        .catch((err) => {
+          if (!current) return;
+          setResult(null);
+          setCheckError(err.message);
+        });
     }, 500); // debounce: don't send every keystroke
-    return () => clearTimeout(timer);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
   }, [password, username]);
 
   const askAi = async () => {
@@ -32,6 +46,7 @@ export default function StrengthMeter({ password, username, allowAi = false }) {
     }
   };
 
+  if (checkError) return <p className="warn small">Password check unavailable: {checkError}</p>;
   if (!result) return null;
   return (
     <div className="strength">
