@@ -1,0 +1,28 @@
+{
+  "name": "vault-server",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/*.test.js",
+    "setup": "node scripts/setup.js",
+    "create-admin": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning scripts/create-admin.js",
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning src/index.js",
+    "dev": "node --watch --env-file-if-exists=.env --disable-warning=ExperimentalWarning src/index.js"
+  },
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.27.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "otplib": "^13.5.0",
+    "qrcode": "^1.5.4",
+    "selfsigned": "^5.5.0",
+    "zxcvbn": "^4.4.2"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "private": true
+}

@@ -1,0 +1,17 @@
+# Automated security patch management.
+# Cooldown: wait 7 days before proposing a newly published version, so malicious or broken
+# releases are usually caught and pulled by the ecosystem first (supply-chain protection).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /server
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+  - package-ecosystem: npm
+    directory: /client
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }

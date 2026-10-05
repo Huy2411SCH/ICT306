@@ -1,0 +1,9 @@
+node_modules/
+client/dist/
+# secrets and runtime data: never commit
+.env
+server/.env
+server/certs/
+server/data/*.db*
+!server/data/common-passwords.txt
+*.log

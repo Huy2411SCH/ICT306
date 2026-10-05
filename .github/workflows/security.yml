@@ -1,0 +1,46 @@
+# DevSecOps pipeline: every push runs tests, SAST, dependency (SCA) and secret scanning.
+# Third-party actions are pinned to full commit SHAs so a re-pointed tag cannot inject code.
+name: Security pipeline
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      - run: npm ci --prefix server
+      - run: npm ci --prefix client
+      - name: Security unit tests
+        run: npm test --prefix server
+      - name: Build client
+        run: npm run build --prefix client
+      - name: Dependency audit (SCA)
+        run: |
+          npm audit --prefix server --audit-level=high
+          npm audit --prefix client --audit-level=high
+
+  sast:
+    runs-on: ubuntu-latest
+    container: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Semgrep (SAST)
+        run: semgrep scan --config p/javascript --config p/nodejs --config p/react --config p/secrets --config p/owasp-top-ten --config p/security-audit --error
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: Gitleaks (secret scanning)
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
