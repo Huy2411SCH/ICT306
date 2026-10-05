@@ -25,6 +25,7 @@ export function createApp() {
           scriptSrc: ["'self'"],
           styleSrc: ["'self'"],
           imgSrc: ["'self'", 'data:'],
+          fontSrc: ["'self'"], // helmet's default also allows any https: host (flagged by ZAP)
           connectSrc: ["'self'"],
           objectSrc: ["'none'"],
           frameAncestors: ["'none'"],
@@ -32,9 +33,19 @@ export function createApp() {
           formAction: ["'self'"],
         },
       },
+      crossOriginEmbedderPolicy: true, // require-corp: only same-origin or opted-in resources
       referrerPolicy: { policy: 'no-referrer' },
     }),
   );
+
+  // Deny browser features the app never uses (clipboard-write stays allowed for copy).
+  app.use((req, res, next) => {
+    res.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(), payment=(), usb=(), clipboard-read=(), interest-cohort=()',
+    );
+    next();
+  });
 
   app.use(express.json({ limit: '10kb' }));
 
