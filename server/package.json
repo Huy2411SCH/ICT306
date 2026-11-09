@@ -16,7 +16,7 @@
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
-    "otplib": "^13.5.0",
+    "otplib": "^13.6.0",
     "qrcode": "^1.5.4",
     "securevault": "file:..",
     "selfsigned": "^5.5.0",
